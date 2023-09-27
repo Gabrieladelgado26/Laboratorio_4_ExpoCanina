@@ -7,7 +7,7 @@
 <%@include file= "templates/header.jsp" %>
 
 <!-- Clase contenedora -->
-<div class="container">
+<div class="container p-4">
     <div class="row">
         <img src="./img/front.png" alt=""> <!-- Imagen en la parte superior de la página web -->
         <!-- Columna izquierda para el formulario -->
@@ -16,7 +16,7 @@
                 <!-- Acción que conecta con el servlet llamado SvExpCanina por metodo POST-->
                 <form action="SvExpCanina" method="POST" enctype="multipart/form-data"> <!-- Esta sentencia es para subir archivos -->
                     <h3>Insertar nuevo perro</h3><br> <!-- Titulo del formulario para insertar un perro -->
-                    
+
                     <!-- Formulario que recibe todos los datos para insertar un nuevo perro -->
                     <div class="col-auto">
                         <label class="visually-hidden" for="nombre">Nombre</label>
@@ -100,29 +100,29 @@
 
                             //Cargar la lista de perros desde un archivo
                             Serializacion.leerArchivo(misPerros, context);
-                            
+
                             //Condicional que verifica si la lista de perros no esta vacia
                             if (!misPerros.isEmpty()) {
                                 for (Perro perro : misPerros) {
                         %>                   
                         <tr>
-                            
+
                             <!-- Muestra los datos ingresados en la tabla -->
                             <td><%= perro.getNombre()%></td>
                             <td><%= perro.getRaza()%></td>
-                            <td><img src="<%= request.getContextPath()%>/imgPerros/<%= perro.getImagen()%>" style="width: 200px;" alt="Imagen de perro"></td>
+                            <td><%= perro.getImagen()%></td>
+                            <!-- <td><img src="<%= request.getContextPath()%>/imgPerros/<%= perro.getImagen()%>" style="width: 200px;" alt="Imagen de perro"></td> -->
                             <td><%= perro.getPuntos()%></td>
                             <td><%= perro.getEdad()%></td>
                             <!-- Iconos de acciones -->
                             <td>
-                                <a href="SvExpCanina?id=<%=perro.getNombre()%>"><i class="fa fa-eye"></i></a>
+                                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-nombre="<%=perro.getNombre()%>"><i class="fa fa-eye"></i></a>
                                 <i class="fa fa-marker"></i>
-                                <i class="fa fa-trash-alt"></i>
+                                <a href="SvExpCanina?eliminarNombre=<%= perro.getNombre()%>" class="btn btn-danger"><i class="fa fa-trash-alt"></i></a>
                             </td>               
                         </tr>
                         <% }
-                            } else 
-                            {
+                            } else {
                                 // Si el ArrayList esta vacio envia un mensaje informando al usuario
                                 out.println("<tr>");
                                 // colspan="6" Sirve para ocupar todas las columnas de la tabla de datos
@@ -137,31 +137,49 @@
     </div>
 </div>
 
-<!-- Button trigger modal 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  Launch demo modal
-</button>
--->
-
-    <!-- Modal 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detalles del Perro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="perro-details">
+                    <!-- Aquí se mostraran los detalles del perro -->
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
-      </div>
     </div>
-    -->
-                    
+</div>
+
+<script>
+    // funcion para mostrar los datos en la ventana modal
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Botón que desencadenó el evento
+        var nombre = button.data('nombre'); // Obtén el nombre del perro
+
+        // Realiza una solicitud AJAX al servlet para obtener los detalles del perro por su nombre
+        $.ajax({
+            url: 'SvExpCanina?nombre=' + nombre, // Cambia 'id' por el nombre del parámetro que esperas en tu servlet
+            method: 'GET',
+            success: function (data) {
+                // Actualiza el contenido del modal con los detalles del perro
+                $('#perro-details').html(data);
+            },
+            error: function () {
+                // Maneja errores aquí si es necesario
+                console.log('Error al cargar los detalles del perro.');
+            }
+        });
+    });
+
+</script>
+
 <!-- Inclución de la plantilla de footer -->
 <%@include file= "templates/footer.jsp" %>
